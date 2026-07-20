@@ -1,0 +1,5 @@
+.deniedContainer {
+  padding: var(--space-xl);
+  max-width: 600px;
+  margin: var(--space-xxl) auto;
+}

@@ -1,0 +1,124 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 var(--space-lg);
+  background-color: var(--primary-dark);
+  color: var(--bg-surface);
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+  color: var(--bg-surface);
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.logoIcon {
+  width: 28px;
+  height: 28px;
+  fill: var(--accent-light);
+}
+
+.brandTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.5px;
+  color: var(--bg-surface);
+  margin-bottom: 0;
+}
+
+.centerSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.simulatedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background-color: rgba(239, 108, 0, 0.2);
+  color: #ffb74d;
+  border: 1px solid rgba(239, 108, 0, 0.4);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.badgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #ffb74d;
+}
+
+.userControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: var(--font-size-xs);
+}
+
+.userEmail {
+  font-weight: var(--font-weight-medium);
+  color: var(--bg-surface);
+}
+
+.roleBadge {
+  font-size: 0.65rem;
+  font-weight: var(--font-weight-bold);
+  padding: 1px var(--space-xs);
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.roleAuditor {
+  background-color: var(--accent-light);
+  color: var(--primary-dark);
+}
+
+.roleAdmin {
+  background-color: #ba68c8;
+  color: #ffffff;
+}
+
+.logoutBtn {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--bg-surface);
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.logoutBtn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.loginLink {
+  color: var(--accent-light);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+}

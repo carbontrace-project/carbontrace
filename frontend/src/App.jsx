@@ -1,11 +1,34 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Navbar from './components/common/Navbar';
+import Sidebar from './components/common/Sidebar';
+import ProtectedRoute, { AdminRoute } from './components/common/ProtectedRoute';
+import LoginPage from './pages/LoginPage';
 import styles from './styles/App.module.css';
 
 /**
- * Homepage component rendering the minimal application shell.
- * Shows the corporate identity, branding, and verifies that the environment config is active.
+ * Main application layout shell with sticky top Navbar and left Sidebar navigation.
+ */
+function MainLayout() {
+  return (
+    <div className={styles.layoutWrapper}>
+      <Navbar />
+      <div className={styles.layoutBody}>
+        <Sidebar />
+        <main className={styles.mainContent}>
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Welcome / Dashboard shell component for STEP B003 verification.
  */
 function Home() {
+  const { user } = useAuth();
+
   const handleCheckConfig = () => {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
     alert(`Configuration Active:\nAPI Base URL: ${apiBaseUrl}`);
@@ -13,40 +36,14 @@ function Home() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <svg 
-          className="brand-icon" 
-          viewBox="0 0 24 24" 
-          xmlns="http://www.w3.org/2000/svg"
-          aria-label="CarbonTrace Logo"
-        >
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-        </svg>
-        <span className={styles.logoText}>
-          CarbonTrace
-        </span>
-      </header>
       <main className={styles.mainCard}>
-        <h1 className={styles.title}>
-          CarbonTrace Platform Initialized
-        </h1>
+        <h1 className={styles.title}>CarbonTrace Platform Shell</h1>
         <p className={styles.description}>
-          Welcome to CarbonTrace, a platform for auditing supply chain greenhouse gas footprints. Auditors can upload freight documents, check AI extraction results, run emissions calculations, and offset footprints.
+          Welcome{user?.firstName ? `, ${user.firstName}` : ''}! Authentication foundation, JWT refresh interceptor, route guards, and common components have been initialized (STEP B003).
         </p>
         <div className={styles.buttonGroup}>
-          <button 
-            type="button" 
-            className="btn-primary" 
-            onClick={() => alert('CarbonTrace initialized. No additional modules are active yet.')}
-          >
-            Learn More
-          </button>
-          <button 
-            type="button" 
-            className="btn-secondary" 
-            onClick={handleCheckConfig}
-          >
-            Verify API Configuration
+          <button type="button" className="btn-primary" onClick={handleCheckConfig}>
+            Verify API Base URL Config
           </button>
         </div>
       </main>
@@ -54,16 +51,58 @@ function Home() {
   );
 }
 
-// Router configuration with the single index path per specifications.
+/**
+ * Admin shell component placeholder for STEP B003 verification.
+ */
+function AdminShell() {
+  return (
+    <div className={styles.container}>
+      <main className={styles.mainCard}>
+        <h1 className={styles.title}>Admin Control Panel Shell</h1>
+        <p className={styles.description}>
+          Admin route guard verified successfully. User management and factors management will be attached in feature steps.
+        </p>
+      </main>
+    </div>
+  );
+}
+
+// Route table pointing at pages created in STEP B003 & STEP B004 shells
 const router = createBrowserRouter([
   {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
     path: '/',
-    element: <Home />,
+    element: (
+      <ProtectedRoute>
+        <MainLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+      {
+        path: 'admin',
+        element: (
+          <AdminRoute>
+            <AdminShell />
+          </AdminRoute>
+        ),
+      },
+    ],
   },
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;

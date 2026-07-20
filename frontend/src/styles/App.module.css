@@ -45,3 +45,22 @@
   display: flex;
   gap: var(--space-md);
 }
+
+.layoutWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layoutBody {
+  display: flex;
+  flex: 1;
+}
+
+.mainContent {
+  flex: 1;
+  padding: var(--space-xl);
+  max-width: 1200px;
+  width: 100%;
+}
+

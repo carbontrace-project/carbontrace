@@ -1,0 +1,53 @@
+.container {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background-color: #fdeded;
+  border: 1px solid #f5c2c7;
+  border-left: 5px solid var(--error);
+  border-radius: var(--radius-md);
+  margin: var(--space-md) 0;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--error);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.content {
+  flex: 1;
+}
+
+.title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--error);
+  margin-bottom: var(--space-xs);
+}
+
+.message {
+  font-size: var(--font-size-sm);
+  color: var(--text);
+  margin-bottom: 0;
+}
+
+.retryBtn {
+  margin-top: var(--space-sm);
+  background-color: var(--error);
+  color: white;
+  border: none;
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.retryBtn:hover {
+  background-color: #9a1c1c;
+}

@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/common/Navbar';
 import Sidebar from './components/common/Sidebar';
 import ProtectedRoute, { AdminRoute } from './components/common/ProtectedRoute';
@@ -7,10 +7,16 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyOtpPage from './pages/VerifyOtpPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import DashboardPage from './pages/DashboardPage';
 import VendorsPage from './pages/VendorsPage';
 import UploadShipmentPage from './pages/UploadShipmentPage';
 import ShipmentsPage from './pages/ShipmentsPage';
 import ShipmentDetailPage from './pages/ShipmentDetailPage';
+import EmissionsMapPage from './pages/EmissionsMapPage';
+import GoalsPage from './pages/GoalsPage';
+import MarketplacePage from './pages/MarketplacePage';
+import PurchasesPage from './pages/PurchasesPage';
+import AdminPage from './pages/AdminPage';
 import styles from './styles/App.module.css';
 
 /**
@@ -26,50 +32,6 @@ function MainLayout() {
           <Outlet />
         </main>
       </div>
-    </div>
-  );
-}
-
-/**
- * Welcome / Dashboard shell component for STEP B005 verification.
- */
-function Home() {
-  const { user } = useAuth();
-
-  const handleCheckConfig = () => {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-    alert(`Configuration Active:\nAPI Base URL: ${apiBaseUrl}`);
-  };
-
-  return (
-    <div className={styles.container}>
-      <main className={styles.mainCard}>
-        <h1 className={styles.title}>CarbonTrace Dashboard</h1>
-        <p className={styles.description}>
-          Welcome{user?.firstName ? `, ${user.firstName}` : ''}! Core auditor working surface active: Vendors, Upload Flow (S3 direct), Shipments List/Detail, AI Extraction Review, Emission Calculation, and Offset Purchasing (STEP B005).
-        </p>
-        <div className={styles.buttonGroup}>
-          <button type="button" className="btn-primary" onClick={handleCheckConfig}>
-            Verify API Base URL Config
-          </button>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-/**
- * Admin shell component placeholder for STEP B005 verification.
- */
-function AdminShell() {
-  return (
-    <div className={styles.container}>
-      <main className={styles.mainCard}>
-        <h1 className={styles.title}>Admin Control Panel</h1>
-        <p className={styles.description}>
-          Admin route guard verified. Full admin management pages will be attached in STEP B006.
-        </p>
-      </main>
     </div>
   );
 }
@@ -102,7 +64,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />,
+        element: <DashboardPage />,
       },
       {
         path: 'vendors',
@@ -121,10 +83,26 @@ const router = createBrowserRouter([
         element: <ShipmentDetailPage />,
       },
       {
+        path: 'emissions-map',
+        element: <EmissionsMapPage />,
+      },
+      {
+        path: 'goals',
+        element: <GoalsPage />,
+      },
+      {
+        path: 'marketplace',
+        element: <MarketplacePage />,
+      },
+      {
+        path: 'purchases',
+        element: <PurchasesPage />,
+      },
+      {
         path: 'admin',
         element: (
           <AdminRoute>
-            <AdminShell />
+            <AdminPage />
           </AdminRoute>
         ),
       },

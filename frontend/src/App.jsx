@@ -7,6 +7,10 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyOtpPage from './pages/VerifyOtpPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import VendorsPage from './pages/VendorsPage';
+import UploadShipmentPage from './pages/UploadShipmentPage';
+import ShipmentsPage from './pages/ShipmentsPage';
+import ShipmentDetailPage from './pages/ShipmentDetailPage';
 import styles from './styles/App.module.css';
 
 /**
@@ -27,7 +31,7 @@ function MainLayout() {
 }
 
 /**
- * Welcome / Dashboard shell component for STEP B004 verification.
+ * Welcome / Dashboard shell component for STEP B005 verification.
  */
 function Home() {
   const { user } = useAuth();
@@ -42,7 +46,7 @@ function Home() {
       <main className={styles.mainCard}>
         <h1 className={styles.title}>CarbonTrace Dashboard</h1>
         <p className={styles.description}>
-          Welcome{user?.firstName ? `, ${user.firstName}` : ''}! Authentication forms, OTP verification countdown, and password reset flows have been fully wired (STEP B004).
+          Welcome{user?.firstName ? `, ${user.firstName}` : ''}! Core auditor working surface active: Vendors, Upload Flow (S3 direct), Shipments List/Detail, AI Extraction Review, Emission Calculation, and Offset Purchasing (STEP B005).
         </p>
         <div className={styles.buttonGroup}>
           <button type="button" className="btn-primary" onClick={handleCheckConfig}>
@@ -55,7 +59,7 @@ function Home() {
 }
 
 /**
- * Admin shell component placeholder for STEP B004 verification.
+ * Admin shell component placeholder for STEP B005 verification.
  */
 function AdminShell() {
   return (
@@ -63,7 +67,7 @@ function AdminShell() {
       <main className={styles.mainCard}>
         <h1 className={styles.title}>Admin Control Panel</h1>
         <p className={styles.description}>
-          Admin route guard verified successfully. User management and factors management will be attached in feature steps.
+          Admin route guard verified. Full admin management pages will be attached in STEP B006.
         </p>
       </main>
     </div>
@@ -99,6 +103,22 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+      },
+      {
+        path: 'vendors',
+        element: <VendorsPage />,
+      },
+      {
+        path: 'upload',
+        element: <UploadShipmentPage />,
+      },
+      {
+        path: 'shipments',
+        element: <ShipmentsPage />,
+      },
+      {
+        path: 'shipments/:id',
+        element: <ShipmentDetailPage />,
       },
       {
         path: 'admin',

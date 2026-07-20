@@ -1,0 +1,95 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 100%;
+}
+
+.pdfBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--accent-pale);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.pdfText {
+  font-size: var(--font-size-sm);
+  color: var(--primary-dark);
+  font-weight: var(--font-weight-medium);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-dark);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-xs);
+  margin-bottom: var(--space-sm);
+  text-align: left;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  text-align: left;
+  position: relative;
+}
+
+.label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  transition: var(--transition-base);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+/* Low/Medium confidence amber border highlighting */
+.confidenceWarning {
+  border-color: var(--warning) !important;
+  background-color: #fffde7 !important;
+  box-shadow: 0 0 0 2px rgba(239, 108, 0, 0.2);
+}
+
+.confidenceBadge {
+  font-size: 0.65rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--warning);
+  background-color: #fff3e0;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.submitBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border);
+}

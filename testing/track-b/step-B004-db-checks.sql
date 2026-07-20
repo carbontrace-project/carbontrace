@@ -1,0 +1,46 @@
+-- testing/track-b/step-B004-db-checks.sql
+-- MOCK — replaced in B-SWAP-1
+-- Note: Track B (Frontend) has no direct database connection.
+-- Per COMMANDO.md Section 22 (testing policy), frontend database assertions are 
+-- verified by inspecting mock backend memory state, response body shapes, and console log lines on port 8080.
+
+-- 1. Registration & Verification Assertion (COMMANDO.md Section 8.1 & 9):
+-- Submitting POST /api/auth/register inserts an unverified user record (isEmailVerified=false).
+-- Submitting POST /api/auth/verify-otp with code '482913' updates isEmailVerified=true and returns auto-login tokens.
+-- Expected Response Body:
+-- {
+--   "success": true,
+--   "message": "Email verified successfully",
+--   "data": {
+--     "accessToken": "jwt-auditor-token-...",
+--     "refreshToken": "refresh-token-rotated-...",
+--     "role": "ROLE_AUDITOR"
+--   }
+-- }
+
+-- 2. Unverified User Login Guard Assertion (COMMANDO.md Section 9):
+-- Submitting POST /api/auth/login with 'unverified@acme.com' is rejected before token issuance.
+-- Expected Response Body:
+-- {
+--   "success": false,
+--   "message": "Email not verified"
+-- }
+
+-- 3. Admin Account Seeding & Auth Assertion (COMMANDO.md Section 10):
+-- Submitting POST /api/auth/login with 'admin@carbontrace.dev' returns ROLE_ADMIN and jwt-admin-token.
+-- Expected Response Body:
+-- {
+--   "success": true,
+--   "data": {
+--     "accessToken": "jwt-admin-token-...",
+--     "role": "ROLE_ADMIN"
+--   }
+-- }
+
+-- 4. Password Reset OTP Verification Assertion (COMMANDO.md Section 8.1):
+-- Submitting POST /api/auth/reset-password with code '482913' updates the account password.
+-- Expected Response Body:
+-- {
+--   "success": true,
+--   "message": "Password reset successful. You may now login."
+-- }

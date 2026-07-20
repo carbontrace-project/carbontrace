@@ -1,0 +1,108 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex: 1;
+  text-align: left;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text);
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  transition: var(--transition-base);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--accent-pale);
+}
+
+.inputError {
+  border-color: var(--error);
+}
+
+.errorText {
+  font-size: var(--font-size-xs);
+  color: var(--error);
+  font-weight: var(--font-weight-medium);
+}
+
+.roleGroup {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-xs);
+}
+
+.roleCard {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-base);
+  background-color: var(--bg-surface);
+}
+
+.roleCard:hover {
+  background-color: var(--bg-surface-hover);
+}
+
+.roleCardActive {
+  border-color: var(--primary);
+  background-color: var(--accent-pale);
+}
+
+.radioInput {
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.roleTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-dark);
+}
+
+.submitBtn {
+  width: 100%;
+  padding: var(--space-md);
+  font-size: var(--font-size-base);
+  margin-top: var(--space-sm);
+}
+
+.footerText {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: var(--space-xs);
+}
+
+.footerLink {
+  color: var(--primary);
+  font-weight: var(--font-weight-semibold);
+}

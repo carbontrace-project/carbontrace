@@ -1,35 +1,39 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/axiosConfig';
-import LoginForm from '../components/auth/LoginForm';
-import styles from './LoginPage.module.css';
+import RegisterForm from '../components/auth/RegisterForm';
+import styles from './RegisterPage.module.css';
 
-function LoginPage() {
+function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/';
-
-  const handleLoginSubmit = async (data) => {
+  const handleRegisterSubmit = async (data) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await apiClient.post('/api/auth/login', {
+      await apiClient.post('/api/auth/register', {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        companyName: data.companyName,
         email: data.email,
         password: data.password,
+        role: data.role,
       });
 
-      const responseData = response.data?.data || response.data;
-      login(responseData);
-      navigate(from, { replace: true });
+      // On registration success, navigate to VerifyOtpPage with email state
+      navigate('/verify-otp', {
+        state: {
+          email: data.email,
+          purpose: 'VERIFICATION',
+        },
+      });
     } catch (err) {
-      const message = err.response?.data?.message || err.message || 'Login failed. Please check your credentials.';
+      const message =
+        err.response?.data?.message || err.message || 'Registration failed. Please check your details.';
       setError(message);
     } finally {
       setLoading(false);
@@ -45,11 +49,11 @@ function LoginPage() {
           </svg>
           <h2 className={styles.brandTitle}>CarbonTrace</h2>
         </div>
-        <p className={styles.subtitle}>Sign in to access your sustainability portal</p>
-        <LoginForm onSubmit={handleLoginSubmit} loading={loading} error={error} />
+        <p className={styles.subtitle}>Register for a corporate auditor or administrator account</p>
+        <RegisterForm onSubmit={handleRegisterSubmit} loading={loading} error={error} />
       </div>
     </div>
   );
 }
 
-export default LoginPage;
+export default RegisterPage;

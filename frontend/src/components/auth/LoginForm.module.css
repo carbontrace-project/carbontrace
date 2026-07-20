@@ -1,0 +1,74 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  text-align: left;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text);
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  transition: var(--transition-base);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--accent-pale);
+}
+
+.inputError {
+  border-color: var(--error);
+}
+
+.errorText {
+  font-size: var(--font-size-xs);
+  color: var(--error);
+  font-weight: var(--font-weight-medium);
+}
+
+.forgotLinkWrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.forgotLink {
+  font-size: var(--font-size-xs);
+  color: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+.submitBtn {
+  width: 100%;
+  padding: var(--space-md);
+  font-size: var(--font-size-base);
+  margin-top: var(--space-xs);
+}
+
+.footerText {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: var(--space-md);
+}
+
+.footerLink {
+  color: var(--primary);
+  font-weight: var(--font-weight-semibold);
+}

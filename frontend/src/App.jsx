@@ -4,6 +4,9 @@ import Navbar from './components/common/Navbar';
 import Sidebar from './components/common/Sidebar';
 import ProtectedRoute, { AdminRoute } from './components/common/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import VerifyOtpPage from './pages/VerifyOtpPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import styles from './styles/App.module.css';
 
 /**
@@ -24,7 +27,7 @@ function MainLayout() {
 }
 
 /**
- * Welcome / Dashboard shell component for STEP B003 verification.
+ * Welcome / Dashboard shell component for STEP B004 verification.
  */
 function Home() {
   const { user } = useAuth();
@@ -37,9 +40,9 @@ function Home() {
   return (
     <div className={styles.container}>
       <main className={styles.mainCard}>
-        <h1 className={styles.title}>CarbonTrace Platform Shell</h1>
+        <h1 className={styles.title}>CarbonTrace Dashboard</h1>
         <p className={styles.description}>
-          Welcome{user?.firstName ? `, ${user.firstName}` : ''}! Authentication foundation, JWT refresh interceptor, route guards, and common components have been initialized (STEP B003).
+          Welcome{user?.firstName ? `, ${user.firstName}` : ''}! Authentication forms, OTP verification countdown, and password reset flows have been fully wired (STEP B004).
         </p>
         <div className={styles.buttonGroup}>
           <button type="button" className="btn-primary" onClick={handleCheckConfig}>
@@ -52,13 +55,13 @@ function Home() {
 }
 
 /**
- * Admin shell component placeholder for STEP B003 verification.
+ * Admin shell component placeholder for STEP B004 verification.
  */
 function AdminShell() {
   return (
     <div className={styles.container}>
       <main className={styles.mainCard}>
-        <h1 className={styles.title}>Admin Control Panel Shell</h1>
+        <h1 className={styles.title}>Admin Control Panel</h1>
         <p className={styles.description}>
           Admin route guard verified successfully. User management and factors management will be attached in feature steps.
         </p>
@@ -67,11 +70,23 @@ function AdminShell() {
   );
 }
 
-// Route table pointing at pages created in STEP B003 & STEP B004 shells
+// Complete application router table
 const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/register',
+    element: <RegisterPage />,
+  },
+  {
+    path: '/verify-otp',
+    element: <VerifyOtpPage />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPasswordPage />,
   },
   {
     path: '/',

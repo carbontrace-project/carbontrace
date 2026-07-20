@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.carbontrace.common.ApiResponse;
 
@@ -37,6 +38,7 @@ public class GlobalExceptionHandler {
     private static final String AI_SERVICE_UNAVAILABLE = "AI service unavailable — please try again";
     private static final String UNEXPECTED_ERROR = "An unexpected error occurred";
     private static final String VALIDATION_FAILED = "Validation failed";
+    private static final String NO_ROUTE_MESSAGE = "Requested resource not found";
 
     /** 404 — requested entity does not exist. */
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -78,6 +80,21 @@ public class GlobalExceptionHandler {
                 .orElse(VALIDATION_FAILED);
         log.warn("Validation failed: {}", message);
         return build(HttpStatus.BAD_REQUEST, message);
+    }
+
+    /**
+     * 404 — no route matches the request URL.
+     *
+     * <p>Required because {@link #handleUnexpected} matches every exception, and
+     * {@code ExceptionHandlerExceptionResolver} runs before
+     * {@code DefaultHandlerExceptionResolver}: without this handler Spring's own
+     * {@link NoResourceFoundException} — which already carries 404 — would be
+     * reported as 500 (COMMANDO.md Section 23).
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNoResourceFound(NoResourceFoundException ex) {
+        log.warn("No route for request: {}", ex.getResourcePath());
+        return build(HttpStatus.NOT_FOUND, NO_ROUTE_MESSAGE);
     }
 
     /** 409 — unique/foreign-key constraint violation. */

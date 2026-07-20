@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/carbontrace}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_APP_PASSWORD:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:myDefaultSecretKeyThatIsAtLeast256BitsLongForHS256Algorithm}
+    expiration: ${JWT_EXPIRATION:86400000}
+    refresh-expiration: ${REFRESH_TOKEN_EXPIRATION:604800000}
+  aws:
+    region: ${AWS_REGION:ap-south-1}
+    s3-bucket: ${S3_BUCKET:}
+  fastapi:
+    base-url: ${FASTAPI_URL:http://localhost:8000}
+  marketplace:
+    public-base-url: ${SPRING_BOOT_URL:http://localhost:8080}
+  mail:
+    log-otp-fallback: ${LOG_OTP_FALLBACK:true}

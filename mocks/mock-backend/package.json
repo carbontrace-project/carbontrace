@@ -1,0 +1,14 @@
+{
+  "name": "mock-backend",
+  "version": "1.0.0",
+  "description": "Mock Spring Boot server for CarbonTrace frontend development",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1"
+  }
+}

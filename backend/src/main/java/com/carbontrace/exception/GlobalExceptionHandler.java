@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -45,6 +46,7 @@ public class GlobalExceptionHandler {
     private static final String MALFORMED_BODY_MESSAGE = "Malformed request body";
     private static final String UNSUPPORTED_MEDIA_TYPE_MESSAGE = "Content-Type must be application/json";
     private static final String METHOD_NOT_ALLOWED_MESSAGE = "Request method not supported for this endpoint";
+    private static final String TYPE_MISMATCH_MESSAGE = "Invalid value for parameter '%s'";
 
     /** 404 — requested entity does not exist. */
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -116,6 +118,25 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleUnreadableBody(HttpMessageNotReadableException ex) {
         log.warn("Unreadable request body: {}", ex.getClass().getSimpleName());
         return build(HttpStatus.BAD_REQUEST, MALFORMED_BODY_MESSAGE);
+    }
+
+    /**
+     * 400 — a path variable or query parameter could not be converted to the
+     * declared type (for example {@code GET /api/vendors/not-a-number} against
+     * {@code @PathVariable Long id}).
+     *
+     * <p>Same mechanism as {@link #handleNoResourceFound} and
+     * {@link #handleUnreadableBody}: Spring's own exception already carries 400,
+     * but the catch-all below matches it first and would report a client typo as
+     * 500. This became reachable with the first id-bearing route (STEP A014).
+     *
+     * <p>Only the parameter NAME is echoed, never the rejected value — the same
+     * rule the unreadable-body handler follows.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        log.warn("Type mismatch for parameter '{}'", ex.getName());
+        return build(HttpStatus.BAD_REQUEST, String.format(TYPE_MISMATCH_MESSAGE, ex.getName()));
     }
 
     /** 415 — the request did not declare {@code application/json}. */

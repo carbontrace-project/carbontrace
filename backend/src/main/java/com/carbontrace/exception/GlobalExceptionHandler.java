@@ -5,6 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,6 +42,9 @@ public class GlobalExceptionHandler {
     private static final String UNEXPECTED_ERROR = "An unexpected error occurred";
     private static final String VALIDATION_FAILED = "Validation failed";
     private static final String NO_ROUTE_MESSAGE = "Requested resource not found";
+    private static final String MALFORMED_BODY_MESSAGE = "Malformed request body";
+    private static final String UNSUPPORTED_MEDIA_TYPE_MESSAGE = "Content-Type must be application/json";
+    private static final String METHOD_NOT_ALLOWED_MESSAGE = "Request method not supported for this endpoint";
 
     /** 404 — requested entity does not exist. */
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -95,6 +101,35 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleNoResourceFound(NoResourceFoundException ex) {
         log.warn("No route for request: {}", ex.getResourcePath());
         return build(HttpStatus.NOT_FOUND, NO_ROUTE_MESSAGE);
+    }
+
+    /**
+     * 400 — the request body is not readable (malformed JSON, wrong type for a
+     * field, empty body on a {@code @RequestBody} method).
+     *
+     * <p>Same mechanism as {@link #handleNoResourceFound}: without this handler
+     * the catch-all reports a client's typo as 500. The parser's own message is
+     * deliberately NOT echoed — it exposes class names and body fragments, and a
+     * body fragment can contain a password or OTP code (COMMANDO.md Section 21).
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUnreadableBody(HttpMessageNotReadableException ex) {
+        log.warn("Unreadable request body: {}", ex.getClass().getSimpleName());
+        return build(HttpStatus.BAD_REQUEST, MALFORMED_BODY_MESSAGE);
+    }
+
+    /** 415 — the request did not declare {@code application/json}. */
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUnsupportedMediaType(HttpMediaTypeNotSupportedException ex) {
+        log.warn("Unsupported media type: {}", ex.getContentType());
+        return build(HttpStatus.UNSUPPORTED_MEDIA_TYPE, UNSUPPORTED_MEDIA_TYPE_MESSAGE);
+    }
+
+    /** 405 — the route exists but not for this HTTP method. */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        log.warn("Method not supported: {}", ex.getMethod());
+        return build(HttpStatus.METHOD_NOT_ALLOWED, METHOD_NOT_ALLOWED_MESSAGE);
     }
 
     /** 409 — unique/foreign-key constraint violation. */

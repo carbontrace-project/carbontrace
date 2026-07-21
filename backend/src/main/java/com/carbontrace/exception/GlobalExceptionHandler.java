@@ -17,6 +17,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.carbontrace.common.ApiResponse;
+import com.carbontrace.modules.shipment.exception.ShipmentException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,8 +33,9 @@ import lombok.extern.slf4j.Slf4j;
  * ERROR with the full stack trace. Never log passwords, OTP codes, JWTs, AWS
  * credentials, or full presigned URLs (COMMANDO.md Section 10).
  *
- * <p>Module-specific exceptions (ShipmentException, PurchaseException) are added
- * alongside these handlers when their modules are built.
+ * <p>Module-specific exceptions are added alongside these handlers when their
+ * modules are built: {@link ShipmentException} (400) arrived with STEP A015;
+ * {@code PurchaseException} (409) follows in STEP A026.
  */
 @Slf4j
 @RestControllerAdvice
@@ -59,6 +61,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse<Object>> handleBadRequest(BadRequestException ex) {
         log.warn("Bad request: {}", ex.getMessage());
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    /**
+     * 400 — a shipment rule was violated (COMMANDO.md Section 9, "Upload /
+     * Shipment Rules"): an illegal status transition, a rejected upload, or a
+     * calculation missing its required fields.
+     *
+     * <p>Handled separately from {@link BadRequestException} because Section 23
+     * lists it separately, and because the sibling {@code PurchaseException}
+     * maps to 409 rather than 400 — the two module exceptions are not
+     * interchangeable.
+     */
+    @ExceptionHandler(ShipmentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleShipmentException(ShipmentException ex) {
+        log.warn("Shipment rule violation: {}", ex.getMessage());
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 

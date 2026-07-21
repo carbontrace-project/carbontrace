@@ -11,6 +11,17 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+    # --- Added by STEP A019, required by data.sql. ---
+    # Without this, Spring runs data.sql BEFORE Hibernate creates the tables and
+    # the seed fails on a fresh database. Deferring it puts the insert after
+    # ddl-auto has produced the schema.
+    defer-datasource-initialization: true
+  sql:
+    init:
+      # Spring Boot runs data.sql automatically only for EMBEDDED databases.
+      # PostgreSQL is not embedded, so without mode: always the Section 15 seed
+      # would silently never run.
+      mode: always
   mail:
     host: smtp.gmail.com
     port: 587

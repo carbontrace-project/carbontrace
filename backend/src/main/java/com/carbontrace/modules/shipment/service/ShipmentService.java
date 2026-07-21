@@ -5,6 +5,7 @@ import java.util.Map;
 import com.carbontrace.common.PagedResponse;
 import com.carbontrace.modules.shipment.dto.ShipmentCreateRequest;
 import com.carbontrace.modules.shipment.dto.ShipmentResponseDto;
+import com.carbontrace.modules.shipment.dto.ShipmentReviewRequest;
 import com.carbontrace.modules.shipment.dto.UploadUrlRequest;
 import com.carbontrace.modules.shipment.dto.UploadUrlResponse;
 import com.carbontrace.modules.shipment.entity.ShipmentStatus;
@@ -66,6 +67,24 @@ public interface ShipmentService {
      * @throws com.carbontrace.exception.ResourceNotFoundException if no shipment has that id
      */
     ShipmentResponseDto getShipmentById(Long id);
+
+    /**
+     * Saves the auditor's corrections to the extracted fields and moves the
+     * shipment to {@code REVIEWED} (Section 8.4).
+     *
+     * <p>Permitted from {@code NEEDS_REVIEW}, {@code REVIEWED} and {@code FAILED}
+     * only. Section 9 makes {@code CALCULATED} terminal for review: once
+     * emissions have been computed from a set of fields, letting those fields
+     * change would leave a stored figure that no longer follows from its inputs.
+     *
+     * @param id      shipment primary key
+     * @param request the corrected fields; every one is optional
+     * @return the shipment as stored after the review
+     * @throws com.carbontrace.exception.ResourceNotFoundException if no shipment has that id
+     * @throws com.carbontrace.modules.shipment.exception.ShipmentException if the shipment
+     *         is CALCULATED, or in any other state review does not accept
+     */
+    ShipmentResponseDto reviewShipment(Long id, ShipmentReviewRequest request);
 
     /**
      * Issues a fresh presigned {@code GET} for a shipment's stored document

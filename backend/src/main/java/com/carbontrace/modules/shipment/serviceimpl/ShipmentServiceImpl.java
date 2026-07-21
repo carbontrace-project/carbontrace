@@ -1,7 +1,9 @@
 package com.carbontrace.modules.shipment.serviceimpl;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +19,7 @@ import com.carbontrace.modules.auth.entity.User;
 import com.carbontrace.modules.auth.repository.UserRepository;
 import com.carbontrace.modules.shipment.dto.ShipmentCreateRequest;
 import com.carbontrace.modules.shipment.dto.ShipmentResponseDto;
+import com.carbontrace.modules.shipment.dto.ShipmentReviewRequest;
 import com.carbontrace.modules.shipment.dto.UploadUrlRequest;
 import com.carbontrace.modules.shipment.dto.UploadUrlResponse;
 import com.carbontrace.modules.shipment.entity.Shipment;
@@ -54,6 +57,21 @@ public class ShipmentServiceImpl implements ShipmentService {
     private static final String UPLOADER_NOT_FOUND = "User not found with email: ";
     private static final String VENDOR_INACTIVE =
             "Shipments cannot be created for an inactive vendor: ";
+    private static final String ALREADY_CALCULATED =
+            "Shipment has already been calculated and can no longer be reviewed";
+    private static final String NOT_REVIEWABLE = "Shipment cannot be reviewed in status: ";
+
+    /**
+     * The states {@code PUT /api/shipments/{id}/review} accepts (Section 9).
+     *
+     * <p>{@code UPLOADED} is absent on purpose: it means extraction has not
+     * finished, so there is nothing yet for the auditor to correct. It becomes
+     * reachable only when A-SWAP-1 wires the real extraction call.
+     */
+    private static final Set<ShipmentStatus> REVIEWABLE_STATUSES = EnumSet.of(
+            ShipmentStatus.NEEDS_REVIEW,
+            ShipmentStatus.REVIEWED,
+            ShipmentStatus.FAILED);
 
     /** Newest first, by unique id so pages can never overlap — as in {@code VendorServiceImpl}. */
     private static final Sort NEWEST_FIRST = Sort.by(Sort.Direction.DESC, "id");
@@ -147,6 +165,47 @@ public class ShipmentServiceImpl implements ShipmentService {
     @Transactional(readOnly = true)
     public ShipmentResponseDto getShipmentById(Long id) {
         return shipmentMapper.toResponseDto(findShipment(id));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The state check runs BEFORE the mapper touches anything, so a rejected
+     * review leaves the shipment byte-identical — no partial write, nothing for
+     * the exception to roll back.
+     *
+     * <p>{@code REVIEWED → REVIEWED} is deliberately legal: an auditor who spots
+     * a second mistake before running the calculation can simply save again.
+     * {@code FAILED → REVIEWED} is the manual-entry path Section 23 describes,
+     * where extraction failed and the auditor types every field in by hand —
+     * which is why {@code failure_reason} is cleared here. Leaving it set would
+     * keep the "extraction failed" banner on a shipment a human has since fixed.
+     */
+    @Override
+    @Transactional
+    public ShipmentResponseDto reviewShipment(Long id, ShipmentReviewRequest request) {
+        Shipment shipment = findShipment(id);
+        ShipmentStatus current = shipment.getStatus();
+
+        // Section 9: CALCULATED is terminal for review. Called out separately
+        // from the general guard because it is the one rejection an auditor will
+        // actually hit, and it needs to say why rather than list legal states.
+        if (current == ShipmentStatus.CALCULATED) {
+            log.warn("Review rejected — shipment {} is already calculated", id);
+            throw new ShipmentException(ALREADY_CALCULATED);
+        }
+        if (!REVIEWABLE_STATUSES.contains(current)) {
+            log.warn("Review rejected — shipment {} is in status {}", id, current);
+            throw new ShipmentException(NOT_REVIEWABLE + current);
+        }
+
+        shipmentMapper.updateShipmentFromReview(request, shipment);
+        shipment.setStatus(ShipmentStatus.REVIEWED);
+        shipment.setFailureReason(null);
+        shipmentRepository.save(shipment);
+
+        log.info("Shipment reviewed: id={} {} -> {}", id, current, ShipmentStatus.REVIEWED);
+        return shipmentMapper.toResponseDto(shipment);
     }
 
     /**

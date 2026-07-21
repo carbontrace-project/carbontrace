@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,7 @@ import com.carbontrace.common.AppConstants;
 import com.carbontrace.common.PagedResponse;
 import com.carbontrace.modules.shipment.dto.ShipmentCreateRequest;
 import com.carbontrace.modules.shipment.dto.ShipmentResponseDto;
+import com.carbontrace.modules.shipment.dto.ShipmentReviewRequest;
 import com.carbontrace.modules.shipment.dto.UploadUrlRequest;
 import com.carbontrace.modules.shipment.dto.UploadUrlResponse;
 import com.carbontrace.modules.shipment.entity.ShipmentStatus;
@@ -54,6 +56,7 @@ public class ShipmentController {
     private static final String CREATE_MESSAGE = "Shipment created successfully";
     private static final String LIST_MESSAGE = "Shipments retrieved";
     private static final String GET_MESSAGE = "Shipment retrieved";
+    private static final String REVIEW_MESSAGE = "Shipment review saved";
 
     private final ShipmentService shipmentService;
 
@@ -102,6 +105,21 @@ public class ShipmentController {
     public ApiResponse<ShipmentResponseDto> getShipmentById(@PathVariable Long id) {
         log.info("Shipment requested: id={}", id);
         return ApiResponse.success(GET_MESSAGE, shipmentService.getShipmentById(id));
+    }
+
+    /**
+     * 200 — saves the auditor's corrections and moves the shipment to REVIEWED.
+     *
+     * <p>Rejected with 400 once the shipment is CALCULATED (Section 9: that state
+     * is terminal for review).
+     */
+    @PutMapping("/{id}/review")
+    public ApiResponse<ShipmentResponseDto> reviewShipment(@PathVariable Long id,
+                                                           @Valid @RequestBody ShipmentReviewRequest request) {
+        // The body is the shipment's own extracted data — no secrets — but it is
+        // large and uninteresting, so only the id is logged.
+        log.info("Shipment review requested: id={}", id);
+        return ApiResponse.success(REVIEW_MESSAGE, shipmentService.reviewShipment(id, request));
     }
 
     /** 200 — a fresh signed, 15-minute GET for the shipment's PDF, or 404. Any authenticated role. */

@@ -14,6 +14,7 @@
     <groupId>com.carbontrace</groupId>
     <artifactId>carbontrace-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
     <name>carbontrace-backend</name>
     <description>CarbonTrace supply chain emission auditing platform - backend</description>
 
@@ -93,6 +94,11 @@
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
+ <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-tomcat</artifactId>
+    <scope>provided</scope>
+   </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>

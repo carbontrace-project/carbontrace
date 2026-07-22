@@ -60,6 +60,16 @@ itself names. STEP A020 mandates this single rule so Spring Boot's NO_PURCHASE
 handling (Section 8.7: no purchase row, the agent's explanation surfaced) is
 testable. Nothing else is invented.
 
+### Chunked request bodies
+
+Spring Boot's `RestTemplate` streams its POST bodies with `Transfer-Encoding:
+chunked` and no `Content-Length`, so this mock decodes chunked. That is not
+optional polish: reading only `Content-Length` makes every Spring Boot request
+arrive as an empty body — which `/agent/purchase` would answer with PURCHASE
+regardless of `max_budget_usd`, making the NO_PURCHASE rule untestable — and
+leaves the chunk bytes in the socket to break the next keep-alive request. STEP
+A021 found both as the first real client.
+
 ### Failure responses
 
 | Case | Status | Body |

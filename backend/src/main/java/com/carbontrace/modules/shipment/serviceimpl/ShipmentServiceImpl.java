@@ -18,6 +18,7 @@ import com.carbontrace.exception.ResourceNotFoundException;
 import com.carbontrace.modules.auth.entity.User;
 import com.carbontrace.modules.auth.repository.UserRepository;
 import com.carbontrace.modules.shipment.dto.ShipmentCreateRequest;
+import com.carbontrace.modules.shipment.dto.ShipmentMapPointDto;
 import com.carbontrace.modules.shipment.dto.ShipmentResponseDto;
 import com.carbontrace.modules.shipment.dto.ShipmentReviewRequest;
 import com.carbontrace.modules.shipment.dto.UploadUrlRequest;
@@ -206,6 +207,24 @@ public class ShipmentServiceImpl implements ShipmentService {
 
         log.info("Shipment reviewed: id={} {} -> {}", id, current, ShipmentStatus.REVIEWED);
         return shipmentMapper.toResponseDto(shipment);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The filtering is entirely the repository's; this method only maps. Both
+     * halves of the Section 8.4 rule — CALCULATED, and all four coordinates —
+     * are in the query, so a shipment that cannot be drawn is never loaded.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<ShipmentMapPointDto> getMapPoints() {
+        List<ShipmentMapPointDto> points = shipmentRepository.findMapPoints().stream()
+                .map(shipmentMapper::toMapPointDto)
+                .toList();
+
+        log.info("Map points retrieved: {}", points.size());
+        return points;
     }
 
     /**

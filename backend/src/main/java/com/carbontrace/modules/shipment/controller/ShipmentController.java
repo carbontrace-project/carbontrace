@@ -1,5 +1,6 @@
 package com.carbontrace.modules.shipment.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.carbontrace.common.ApiResponse;
 import com.carbontrace.common.AppConstants;
 import com.carbontrace.common.PagedResponse;
+import com.carbontrace.modules.emission.service.CalculationService;
 import com.carbontrace.modules.shipment.dto.ShipmentCreateRequest;
+import com.carbontrace.modules.shipment.dto.ShipmentMapPointDto;
 import com.carbontrace.modules.shipment.dto.ShipmentResponseDto;
 import com.carbontrace.modules.shipment.dto.ShipmentReviewRequest;
 import com.carbontrace.modules.shipment.dto.UploadUrlRequest;
@@ -32,8 +35,12 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * The shipment endpoints of COMMANDO.md Section 8.4 that exist so far.
  *
- * <p>Still to come: review (STEP A018), calculate (A021) and the map endpoint
- * (A022). Nothing is stubbed for them.
+ * <p>All Section 8.4 routes are present as of STEP A022.
+ *
+ * <p>{@code CalculationService} is injected from the emission module: Section 8.4
+ * puts the calculate route under {@code /api/shipments}, while Section 6 puts the
+ * service that implements it under {@code modules/emission}, because the work it
+ * does is the Section 9 emission-factor lookup.
  *
  * <p>Authorization needs no annotation — no route here matches a Section 10
  * permitAll or ROLE_ADMIN rule, so {@code anyRequest().authenticated()} covers
@@ -57,8 +64,13 @@ public class ShipmentController {
     private static final String LIST_MESSAGE = "Shipments retrieved";
     private static final String GET_MESSAGE = "Shipment retrieved";
     private static final String REVIEW_MESSAGE = "Shipment review saved";
+    private static final String MAP_MESSAGE = "Map points retrieved";
+
+    // Verbatim from the COMMANDO.md Section 8.4 calculate example.
+    private static final String CALCULATE_MESSAGE = "Emissions calculated";
 
     private final ShipmentService shipmentService;
+    private final CalculationService calculationService;
 
     /** 200 — a signed, 10-minute PUT for a single PDF. Any authenticated role. */
     @PostMapping("/upload-url")
@@ -100,6 +112,24 @@ public class ShipmentController {
         return ApiResponse.success(LIST_MESSAGE, shipmentService.getShipments(status, vendorId, page, size));
     }
 
+    /**
+     * 200 — every shipment the emissions map can draw (Section 8.4).
+     *
+     * <p>Declared BEFORE {@code /{id}} for readability only. Spring resolves it
+     * correctly either way: a literal segment outranks a template one, so
+     * {@code /map} never reaches {@code @PathVariable Long id} — which would
+     * otherwise be a 400 type-mismatch on the word "map".
+     *
+     * <p>Unpaged, and an empty list when nothing has been calculated yet. That
+     * is a normal state, not a 404: Section 12 gives the page its own empty
+     * state.
+     */
+    @GetMapping("/map")
+    public ApiResponse<List<ShipmentMapPointDto>> getMapPoints() {
+        log.info("Shipment map points requested");
+        return ApiResponse.success(MAP_MESSAGE, shipmentService.getMapPoints());
+    }
+
     /** 200 — a single shipment, or 404. Any authenticated role. */
     @GetMapping("/{id}")
     public ApiResponse<ShipmentResponseDto> getShipmentById(@PathVariable Long id) {
@@ -120,6 +150,23 @@ public class ShipmentController {
         // large and uninteresting, so only the id is logged.
         log.info("Shipment review requested: id={}", id);
         return ApiResponse.success(REVIEW_MESSAGE, shipmentService.reviewShipment(id, request));
+    }
+
+    /**
+     * 200 — computes and stores the shipment's emissions, moving it to
+     * CALCULATED (Section 8.4).
+     *
+     * <p>No request body: every input is already on the shipment, put there by
+     * extraction and corrected during review.
+     *
+     * <p>400 if the shipment is not REVIEWED or is missing a Section 9
+     * calculation input; 502 if FastAPI cannot be reached, in which case the
+     * shipment stays REVIEWED and the call can simply be retried.
+     */
+    @PostMapping("/{id}/calculate")
+    public ApiResponse<ShipmentResponseDto> calculateEmissions(@PathVariable Long id) {
+        log.info("Emission calculation requested: shipmentId={}", id);
+        return ApiResponse.success(CALCULATE_MESSAGE, calculationService.calculateEmissions(id));
     }
 
     /** 200 — a fresh signed, 15-minute GET for the shipment's PDF, or 404. Any authenticated role. */

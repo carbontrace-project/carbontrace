@@ -117,7 +117,7 @@ class MockAiHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         # Read the body FIRST, always: an unread body desynchronises the next
         # request on a keep-alive connection, which RestTemplate uses.
-        raw = self.rfile.read(int(self.headers.get("Content-Length") or 0))
+        raw = self._read_body()
 
         if self.path not in POST_ROUTES:
             self._send(405 if self.path == "/health" else 404,
@@ -140,6 +140,38 @@ class MockAiHandler(BaseHTTPRequestHandler):
             self._send(200, NO_PURCHASE if broke else PURCHASE)
         else:
             self._send(200, POST_ROUTES[self.path])
+
+    def _read_body(self):
+        """The request body, honouring chunked transfer encoding.
+
+        Spring Boot's RestTemplate (SimpleClientHttpRequestFactory) streams its
+        POST bodies CHUNKED, with no Content-Length header at all. A server that
+        reads only Content-Length gets two failures for the price of one: it
+        sees an empty body, and it leaves the chunk bytes sitting in the socket,
+        where the next keep-alive request on that connection parses the
+        chunk-size line as a request line and answers 400. Spring Boot then
+        reports that as an intermittent, unreproducible 502.
+
+        Both were live in STEP A020 and surfaced the moment A021 became the
+        first real client. The empty-body half is the dangerous one: /calculate
+        and /extract ignore their request anyway, but /agent/purchase reads
+        max_budget_usd, so the NO_PURCHASE rule would silently never fire from
+        Spring Boot and STEP A026 would have no way to test it.
+
+        HTTP/1.1 requires chunked support and this handler declares HTTP/1.1.
+        Trailers after the terminating zero-length chunk are not expected from
+        this client and are not parsed.
+        """
+        if "chunked" in (self.headers.get("Transfer-Encoding") or "").lower():
+            body = b""
+            while True:
+                size = int(self.rfile.readline().split(b";")[0].strip() or b"0", 16)
+                if size == 0:
+                    self.rfile.readline()  # the CRLF closing the final chunk
+                    return body
+                body += self.rfile.read(size)
+                self.rfile.readline()      # the CRLF after each chunk
+        return self.rfile.read(int(self.headers.get("Content-Length") or 0))
 
     def _send(self, status, body):
         data = body.encode("utf-8")

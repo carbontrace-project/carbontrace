@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import com.carbontrace.modules.shipment.dto.ShipmentCreateRequest;
+import com.carbontrace.modules.shipment.dto.ShipmentMapPointDto;
 import com.carbontrace.modules.shipment.dto.ShipmentResponseDto;
 import com.carbontrace.modules.shipment.dto.ShipmentReviewRequest;
 import com.carbontrace.modules.shipment.entity.Shipment;
@@ -26,6 +27,17 @@ public interface ShipmentMapper {
     @Mapping(target = "uploadedById", source = "uploadedBy.id")
     @Mapping(target = "uploadedByEmail", source = "uploadedBy.email")
     ShipmentResponseDto toResponseDto(Shipment shipment);
+
+    /**
+     * Entity to one map marker pair ({@code GET /api/shipments/map},
+     * Section 8.4).
+     *
+     * <p>Every target field has a same-named source, so there is nothing to
+     * declare: the two enums convert to their names exactly as they do in
+     * {@link #toResponseDto}. The narrowing is the point of the DTO, not of the
+     * mapping.
+     */
+    ShipmentMapPointDto toMapPointDto(Shipment shipment);
 
     /**
      * Request to the {@link ShipmentDocument} row that records what was uploaded.

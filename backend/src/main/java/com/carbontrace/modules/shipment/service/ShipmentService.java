@@ -1,9 +1,11 @@
 package com.carbontrace.modules.shipment.service;
 
+import java.util.List;
 import java.util.Map;
 
 import com.carbontrace.common.PagedResponse;
 import com.carbontrace.modules.shipment.dto.ShipmentCreateRequest;
+import com.carbontrace.modules.shipment.dto.ShipmentMapPointDto;
 import com.carbontrace.modules.shipment.dto.ShipmentResponseDto;
 import com.carbontrace.modules.shipment.dto.ShipmentReviewRequest;
 import com.carbontrace.modules.shipment.dto.UploadUrlRequest;
@@ -14,8 +16,8 @@ import com.carbontrace.modules.shipment.entity.ShipmentStatus;
  * The shipment operations reachable from {@code ShipmentController}
  * (COMMANDO.md Section 8.4).
  *
- * <p>Still incomplete by design: review (STEP A018), calculation (A021) and the
- * map endpoint (A022) are not here, and nothing is stubbed for them.
+ * <p>Calculation is deliberately absent: Section 6 puts {@code CalculationService}
+ * in the emission module, and {@code ShipmentController} injects it directly.
  */
 public interface ShipmentService {
 
@@ -85,6 +87,18 @@ public interface ShipmentService {
      *         is CALCULATED, or in any other state review does not accept
      */
     ShipmentResponseDto reviewShipment(Long id, ShipmentReviewRequest request);
+
+    /**
+     * Every shipment the emissions map can draw (Section 8.4): status
+     * {@code CALCULATED} with all four coordinates present.
+     *
+     * <p>Unpaged, because the map renders the whole set at once — Section 12
+     * describes one view of all routes, not a page of them.
+     *
+     * @return the plottable shipments, newest first; empty when nothing has been
+     *         calculated yet, which is a normal state, not an error
+     */
+    List<ShipmentMapPointDto> getMapPoints();
 
     /**
      * Issues a fresh presigned {@code GET} for a shipment's stored document
